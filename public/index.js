@@ -145,6 +145,26 @@ const actors = [{
   }]
 }];
 
+GetShippingPrice();
+
 console.log(truckers);
 console.log(deliveries);
 console.log(actors);
+
+//Step 1 - Euro-Volume
+function GetShippingPrice()
+{
+  var truck = undefined;
+  var truckerId = "";
+
+  deliveries.forEach(element => {
+    truckerId = element.truckerId;
+    truckers.forEach(ele => {
+      if(truckerId == ele.id)
+      {
+        truck = ele;
+      }
+    });
+    element.price = element.distance * truck.pricePerKm + element.volume * truck.pricePerVolume;
+  });
+}
