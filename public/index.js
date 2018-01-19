@@ -145,14 +145,8 @@ const actors = [{
   }]
 }];
 
-GetShippingPrice();
-
-console.log(truckers);
-console.log(deliveries);
-console.log(actors);
-
 //Step 1 - Euro-Volume
-function GetShippingPrice()
+function CalculateShippingPrices()
 {
   var truck = undefined;
   var truckerId = "";
@@ -197,6 +191,7 @@ function GetShippingPrice()
     var treasury = parseInt((element.distance / 500)+1) * 1;
     var convargo = commission - insurance - treasury;
 
+    //Price in case of accident or theft
     var deductiblePrice = 1000;
     if(element.options.deductibleReduction)
     {
@@ -215,6 +210,38 @@ function GetShippingPrice()
 
     element.price = price;
 
-
+    //Pay the users
+    actors.forEach(actorEle => {
+        if(actorEle.deliveryId == element.id)
+        {
+          actorEle.payment.forEach(paymentElement => {
+            //Find the correct user for each usertype
+            switch(paymentElement.who)
+            {
+              case "shipper":
+                paymentElement.amount = price;
+                break;
+              case "trucker":
+                paymentElement.amount = price - commission;
+                break;
+              case "insurance":
+                paymentElement.amount = insurance;
+                break;
+              case "treasury":
+                paymentElement.amount = treasury;
+                break;
+              case "convargo":
+                paymentElement.amount = convargo;
+                break;
+            }
+          });
+        }
+    });
   });
 }
+
+CalculateShippingPrices();
+
+console.log(truckers);
+console.log(deliveries);
+console.log(actors);
