@@ -194,7 +194,7 @@ function GetShippingPrice()
     //Calculate the commission
     var commission = 0.3 * price;
     var insurance = commission/2.0;
-    var treasury = parseInt((element.distance / 500)) * 1;
+    var treasury = parseInt((element.distance / 500)+1) * 1;
     var convargo = commission - insurance - treasury;
 
     var deductiblePrice = 1000;
@@ -214,5 +214,7 @@ function GetShippingPrice()
     element.commission.convargo = convargo;
 
     element.price = price;
+
+
   });
 }
