@@ -165,6 +165,26 @@ function GetShippingPrice()
         truck = ele;
       }
     });
-    element.price = element.distance * truck.pricePerKm + element.volume * truck.pricePerVolume;
+    var reducedPrice = truck.pricePerVolume;
+    if(element.volume > 5 && element.volume < 10)
+    {
+      reducedPrice *= 0.1;
+    }
+    else if(element.volume > 10 && element.volume < 25)
+    {
+      reducedPrice *= 0.3;
+    }
+    else if(element.volume > 25)
+    {
+      reducedPrice *= 0.5;
+    }
+    else
+    {
+      reducedPrice = 0;
+    }
+
+    element.price = element.distance * truck.pricePerKm 
+            + element.volume * (truck.pricePerVolume - reducedPrice);
+  
   });
 }
