@@ -188,10 +188,8 @@ function GetShippingPrice()
     }
 
     //Calculate the price
-    element.price = element.distance * truck.pricePerKm 
+    var price = element.distance * truck.pricePerKm 
             + element.volume * (truck.pricePerVolume - reducedPrice);
-    
-    var price = element.price;
 
     //Calculate the commission
     var commission = 0.3 * price;
@@ -199,10 +197,22 @@ function GetShippingPrice()
     var treasury = parseInt((element.distance / 500)) * 1;
     var convargo = commission - insurance - treasury;
 
+    var deductiblePrice = 1000;
+    if(element.options.deductibleReduction)
+    {
+        deductiblePrice = 200;
+
+        //Added deductible price per m3
+        var deductibleM3Price = element.volume*1;
+        price += deductibleM3Price;
+        convargo += deductibleM3Price;
+
+    }
+    
     element.commission.insurance = insurance;
     element.commission.treasury = treasury;
     element.commission.convargo = convargo;
 
-    
+    element.price = price;
   });
 }
