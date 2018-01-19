@@ -145,34 +145,31 @@ const actors = [{
   }]
 }];
 
-//Step 1 - Euro-Volume
-function CalculateShippingPrices()
+function GetTruckerByID(truckId)
 {
-  var truck = undefined;
-  var truckerId = "";
+  //Get the truck with the id
+  var truck = undefined;  
+  truck = truckers.find(function(element){
+    return truckId === element.id;
+  });
 
-  deliveries.forEach(element => {
+  return truck;
+}
+
+function GetReducedPrice(volume, pricePerVolume)
+{
   
-    //Get the truck with the id
-    truckerId = element.truckerId;
-    truckers.forEach(ele => {
-      if(truckerId == ele.id)
-      {
-        truck = ele;
-      }
-    });
-
     //Calculate the reduced price with the rising volume
-    var reducedPrice = truck.pricePerVolume;
-    if(element.volume > 5 && element.volume < 10)
+    var reducedPrice = pricePerVolume;
+    if(volume > 5 && volume < 10)
     {
       reducedPrice *= 0.1;
     }
-    else if(element.volume > 10 && element.volume < 25)
+    else if(volume > 10 && volume < 25)
     {
       reducedPrice *= 0.3;
     }
-    else if(element.volume > 25)
+    else if(volume > 25)
     {
       reducedPrice *= 0.5;
     }
@@ -180,29 +177,83 @@ function CalculateShippingPrices()
     {
       reducedPrice = 0;
     }
+    return reducedPrice;
+}
 
+function GetPrice(deliveries, truck, reducedPrice)
+{
     //Calculate the price
-    var price = element.distance * truck.pricePerKm 
-            + element.volume * (truck.pricePerVolume - reducedPrice);
+    return deliveries.distance * truck.pricePerKm 
+            + deliveries.volume * (truck.pricePerVolume - reducedPrice);
+}
 
-    //Calculate the commission
-    var commission = 0.3 * price;
-    var insurance = commission/2.0;
-    var treasury = parseInt((element.distance / 500)+1) * 1;
-    var convargo = commission - insurance - treasury;
+function GetCommission(price, percentage)
+{
+  return percentage * price;
+}
 
-    //Price in case of accident or theft
-    var deductiblePrice = 1000;
-    if(element.options.deductibleReduction)
+function GetInsurance(commission, percentage)
+{
+  return commission * percentage;
+}
+
+function GetTreasury(distance, perDistance, eurosPerDistance)
+{
+  return parseInt((distance / perDistance)+1) * eurosPerDistance;
+}
+
+function GetConvargoCommission(commission, insurance, treasury)
+{
+  return commission - insurance - treasury;
+}
+
+function GetAssurancePrice(deductibleReduction)
+{
+  var deductiblePrice = 1000;
+    if(deductibleReduction)
     {
         deductiblePrice = 200;
-
-        //Added deductible price per m3
-        var deductibleM3Price = element.volume*1;
-        price += deductibleM3Price;
-        convargo += deductibleM3Price;
-
     }
+
+    return deductiblePrice;
+}
+
+function GetDeductibleM3Price(deductibleReduction, volume, pricePerVolumeExtra)
+{
+  var deductibleM3Price = 0;
+  if(deductibleReduction)
+    {
+        //Deductible price per m3
+        deductibleM3Price = volume*pricePerVolumeExtra;
+    }
+  return deductibleM3Price;
+}
+
+function CalculateShippingPrices()
+{
+  var truck = undefined;
+  var truckerId = "";
+
+  deliveries.forEach(element => {
+    
+    truck = GetTruckerByID(element.truckerId);
+
+    var reducedPrice = GetReducedPrice(element.volume, truck.pricePerVolume);
+
+    var price = GetPrice(element, truck, reducedPrice);
+
+    //Calculate the commission
+    var commission = GetCommission(price, 0.3);
+    var insurance = GetInsurance(commission, 0.5);
+    var treasury = GetTreasury(element.distance , 500, 1);
+    var convargo = GetConvargoCommission(commission, insurance, treasury);
+
+    //Price in case of accident or theft
+    var deductiblePrice = GetAssurancePrice(element.options.deductibleReduction);
+    var deductibleM3Price = GetDeductibleM3Price(element.options.deductibleReduction, element.volume, 1);
+    
+    price += deductibleM3Price;
+    convargo += deductibleM3Price;
     
     element.commission.insurance = insurance;
     element.commission.treasury = treasury;
