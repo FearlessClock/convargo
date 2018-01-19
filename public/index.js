@@ -158,6 +158,8 @@ function GetShippingPrice()
   var truckerId = "";
 
   deliveries.forEach(element => {
+  
+    //Get the truck with the id
     truckerId = element.truckerId;
     truckers.forEach(ele => {
       if(truckerId == ele.id)
@@ -165,6 +167,8 @@ function GetShippingPrice()
         truck = ele;
       }
     });
+
+    //Calculate the reduced price with the rising volume
     var reducedPrice = truck.pricePerVolume;
     if(element.volume > 5 && element.volume < 10)
     {
@@ -183,8 +187,20 @@ function GetShippingPrice()
       reducedPrice = 0;
     }
 
+    //Calculate the price
     element.price = element.distance * truck.pricePerKm 
             + element.volume * (truck.pricePerVolume - reducedPrice);
-  
+    
+    var price = element.price;
+
+    //Calculate the commision
+    var commission = 0.3 * price;
+    var insurance = commission/2.0;
+    var treasury = parseInt((element.distance / 500)) * 1;
+    var convargo = commission - insurance - treasury;
+
+    element.commission.insurance = insurance;
+    element.commission.treasury = treasury;
+    element.commission.convargo = convargo;
   });
 }
