@@ -193,7 +193,7 @@ function GetShippingPrice()
     
     var price = element.price;
 
-    //Calculate the commision
+    //Calculate the commission
     var commission = 0.3 * price;
     var insurance = commission/2.0;
     var treasury = parseInt((element.distance / 500)) * 1;
@@ -202,5 +202,7 @@ function GetShippingPrice()
     element.commission.insurance = insurance;
     element.commission.treasury = treasury;
     element.commission.convargo = convargo;
+
+    
   });
 }
