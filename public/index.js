@@ -273,7 +273,7 @@ function CalculateShippingPrices()
                 paymentElement.amount = price;
                 break;
               case "trucker":
-                paymentElement.amount = price - commission;
+                paymentElement.amount = price -deductibleM3Price- commission;
                 break;
               case "insurance":
                 paymentElement.amount = insurance;
